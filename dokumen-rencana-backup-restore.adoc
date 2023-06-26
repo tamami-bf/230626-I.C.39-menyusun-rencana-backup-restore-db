@@ -1,0 +1,24 @@
+:doctype: article
+
+= Menyusun Rencana Backup dan Pemulihan Data Bulan Juli 2023
+Priyanto Tamami <tamami.oka@gmail.com>
+Badan Pendapatan Daerah Kabupaten Brebes
+:reproducible:
+:author: Priyanto Tamami <tamami.oka@gmail.com>
+:source-highlighter: rouge
+:table-caption: Tabel 
+:sourcedir: src
+:includedir: contents
+:imagesdir: images
+:chapter-label: 
+:figure-caption: Gambar 
+:icons: font
+:sectnums:
+:title-page:
+////
+Use this if you create a full cover in one page
+:front-cover-image: image::./images/title_page.png[]
+////
+//:title-logo-image: images/logo-zimera.png
+
+include::{includedir}/001-isi.adoc[]

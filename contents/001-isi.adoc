@@ -1,0 +1,219 @@
+
+== Identifikasi Data yang Direncanakan akan Di *_backup_* / Dipulihkan
+
+Data yang direncanakan akan dilakukan _backup_ atau dipulihkan terdiri dari beberapa sistem basis data seperti berikut :
+
+* Basis data untuk layanan aplikasi SISMIOP yang menggunakan sistem basis data Oracle
+* Basis data untuk layanan e-BPHTB yang menggunakan sistem basis data PostgreSQL
+* Basis Data untuk layanan aplikasi SIMDA Pendapatan yang menggunakan sistem basis data MS SQL Server
+* Basis data untuk layanan aplikasi Sipentol yang menggunakan sistem basis data MongoDB
+
+== Identifikasi dan Menentukan Dukungan Infrastruktur TI untuk *_Backup_* dan Pemulihan Data
+
+Dukungan infrastruktur Teknologi Informasi yang digunakan untuk melakukan _backup_ dan pemulihan data telah didukung dengen beberapa perangkat yang tersedia walaupun masih dalam satu lokasi fisik yang sama, yaitu di Badan Pendapatan Daerah Kabupaten Brebes.
+
+== Penyusunan Rencana *_Backup_* dan Pemulihan Data
+
+Rencana _backup_ dilakukan untuk periode harian pada hari kerja, sedangkan rencana pemulihan data dilakukan secara insidentil sesuai kebutuhan
+
+== Pendefinisian Metode *_Backup Restore_*
+
+Metode _backup_ dan pemulihan data data menggunakan _full backup_, yaitu seluruh data pada basis data dilakukan _backup_ secara keseluruhan yang hasilnya digandakan ke beberapa media atau _node_, hal ini untuk mempermudah bila terjadi kegagalan sistem basis data yang memerlukan pemulihan data.
+
+== penyusunan *_Standard Operational_* dan *_Procedure_* Tentang Cara Penduplikasian dan Pengembalian Data
+
+=== Standar Operasional dan Prosedur (SOP) Penduplikasian
+
+==== SOP Penduplikasian Basis Data layanan aplikasi SISMIOP di Sistem Basis Data Oracle
+
+1. Pengelola melakukan _backup_ basis data dengan perintah berikut :
++
+----
+> expdp {username}@{sid} schemas={username}@{sid} dumpfile={tanggal}.dmp logfile={tanggal}.log
+----
++
+Ketentuannya seperti berikut :
++
+* `{username}` adalah pengguna yang memiliki hak untuk melakukan _backup_ data
+* `{sid}` adalah nama _instance_ basis data yang akan di _backup_
+* Untuk parameter `{tanggal}` diisikan dengan tanggal dan jam saat melakukan kegiatan _backup_ data dengan format `yymmdd.hhmi`, dengan ketentuan sebagai berikut :
++
+** `yy` adalah 2 (dua) digit tahun
+** `mm` adalah 2 (dua) digit bulan
+** `dd` adalah 2 (dua) digit tanggal
+** `hh` adalah 2 (dua) digit jam
+** `mi` adalah 2 (dua) digit menit
+
+2. Berkas hasil _backup_ diduplikasikan ke media atau _node_ lain, dalam hal ini berkas hasil _backup_ dikirim ke alamat 192.168.2.47 pada kandar `/home/backup`
+
+3. Selesai
+
+==== SOP Penduplikasian Basis Data layanan e-BPHTB di Sistem Basis Data PostgreSQL
+
+1. Pengelola melakukan _backup_ basis data dengan perintah berikut :
++
+----
+pg_dump -U {username} -W -F t {database} > {tanggal}.bphtb.tar
+----
+Ketentuannya seperti berikut :
++
+* `{username}` adalah nama pengguna yang memiliki hak untuk melakukan _backup_ basis data
+* `{database}` adalah nama basis data yang akan dilakukan _backup_
+* Untuk parameter `{tanggal}` diisikan dengan tanggal dan jam saat melakukan kegiatan _backup_ data dengan format `yymmdd.hhmi`, dengan ketentuan sebagai berikut :
++
+** `yy` adalah 2 (dua) digit tahun
+** `mm` adalah 2 (dua) digit bulan
+** `dd` adalah 2 (dua) digit tanggal
+** `hh` adalah 2 (dua) digit jam
+** `mi` adalah 2 (dua) digit menit
+
+2. Berkas hasil _backup_ diduplikasikan ke media atau _node_ lain, dalam hal ini berkas hasil _backup_ dikirim ke alamat 192.168.2.47 pada kandar `/home/backup`
+
+3. Selesai
+
+==== SOP Penduplikasian Basis Data layanan aplikasi SIMDA Pendapatan yang menggunakan sistem basis data MS SQL Server
+
+1. Pengelola melakukan _backup_ basis data melalui aplikasi Microsoft SQL Server Management Studio dengan format :
++
+* `{tanggal}.simpenda.bak`
+* `{tanggal}.pos.bak`
++
+Untuk parameter `{tanggal}` diisikan dengan tanggal dan jam saat melakukan kegiatan _backup_ data dengan format `yymmdd.hhmi`, dengan ketentuan sebagai berikut :
++
+* `yy` adalah 2 (dua) digit tahun
+* `mm` adalah 2 (dua) digit bulan
+* `dd` adalah 2 (dua) digit tanggal
+* `hh` adalah 2 (dua) digit jam
+* `mi` adalah 2 (dua) digit menit
+
+2. Berkas hasil _backup_ diduplikasikan ke media atau _node_ lain, dalam hal ini berkas hasil _backup_ dikirim ke alamat 192.168.2.47 pada kandar `/home/backup`
+
+3. Selesai
+
+==== SOP Penduplikasian Basis Data layanan aplikasi Sipentol yang menggunakan sistem basis data MongoDB
+
+1. Pengelola melakukan _backup_ basis data dari _instance_ docker dengan nama `service-sipentol` pada _host_ 192.168.2.27 dengan perintah berikut :
++
+----
+> docker exec -it service-sipentol bash
+# mongodump --host=localhost --port=27018 --db=sipentol --out=/root/backup/
+# tar -czvf {tanggal}.sipentol.tgz /root/backup/sipentol/
+----
++
+Untuk parameter `{tanggal}` diisikan dengan tanggal saat melakukan _backup_ dengan format `yymmdd`, dengan ketentuan sebagai berikut :
++
+* `yy` adalah 2 (dua) digit tahun
+* `mm` adalah 2 (dua) digit bulan
+* `dd` adalah 2 (dua) digit tanggal
+
+2. Berkas hasil _backup_ diduplikasikan ke media atau _node_ lain, dalam hal ini berkas hasil _backup dikirim ke alamat 192.168.2.47 pada kandar `/home/backup`
+
+3. Selesai
+
+
+=== Standar Operasional dan Prosedur (SOP) Pengembalian Data
+
+==== SOP Pengembalian Data Layanan Aplikasi SISMIOP di Sistem Basis Data Oracle
+
+1. Pengelola memastikan letak berkas yang akan di _restore_
+
+2. Melakukan _restore_ data menggunakan perintah berikut :
++
+----
+impdp {username}/{password}@{sid} directory={dir} dumpfile={file-dump}.dmp logfile={file-log}.log REMAP_SCHEMA={sourceSchema}:{destSchema}
+----
++
+Dengan ketentuan sebagai berikut :
++
+* `{username}` adalah _username_ yang memiliki hak untuk melakukan mengembalikan data
+* `{password}` adalah _password_ milik pengguna yang merupakan pasangan dari _username_
+* `{sid}` adalah nama _instance_ yang menjadi identitas basis data
+* `{dir}` adalah kandar tempat berkas _backup_ berada
+* `{file-dump}` adalah berkas hasil _backup_ yang akan dipulihkan
+* `{file-log}` adalah nama berkas baru untuk menyimpan catatan aktifitas pengembalian data
+* `{sourceSchema}` adalah skema awal atau sumber skema
+* `{destSchema}` adalah skema tujuan
+
+3. Selesai
+
+==== SOP Pengembalian Data Layanan e-BPHTB di Sistem Basis Data PostgreSQL
+
+1. Pengelola memastikan letak berkas yang akan di _restore_
+
+2. Melakukan _restore_ data menggunakan perintah berikut :
++
+----
+pg_restore -U {username} -d {dbname} -1 {filename}.tar
+----
++
+Dengan ketentuan seperti berikut :
++
+* `{username}` adalah nama pengguna yang memiliki akses untuk melakukan _restore_ data 
+* `{dbname}` adalah nama basis data yang akan di _restore_
+* `{filename}` adalah nama berkas hasil _backup_ yang akan di _restore_
+
+3. Selesai
+
+==== SOP Pengembalian Data Layanan Aplikasi SIMDA Pendapatan di Sistem Basis Data MS SQL Server
+
+1. Pengelola memastikan letak berkas yang akan di _restore_
+
+2. Melakukan _restore_ dengan menggunakan aplikasi Microsoft SQL Server Management
+
+3. Selesai
+
+==== SOP Pengembalian Data Layanan Aplikasi Sipentol di Sistem Basis Data MongoDB
+
+1. Pengelola memastikan letak berkas yang akan di _restore_
+
+2. Melakukan _restore_ data menggunakan perintah berikut :
++
+----
+mongorestore --host={host} --port={port} --username={username} {file}
+----
++
+Dengan ketentuan seperti berikut :
++
+* `{host}` adalah alamat peladen tempat tersedianya layanan PostgreSQL
+* `{port}` adalah alamat _port_ untuk dapat terhutung ke sistem basis data PostgreSQL
+* `{username}` adalah nama pengguna yang digunakan dan memiliki hak akses untuk melakukan pemulihan data
+* `{file}` adalah berkas yang akan dipulihkan
+
+== Penentuan Waktu dan Periode __Backup__ dan Pemulihan Data
+
+Pelaksanaan _backup_ setiap basis data dilakukan pada jam 07.30 atau pukul 15.00 dengan periode waktu setiap hari kerja, sedangkan pemulihan data dilakukan insidental sesuai kebutuhan.
+
+== Dokumentasi Rencana
+
+=== Definisi
+
+Rencana _backup_ dan pemulihan data adalah proses untuk melakukan pencadangan dengan cara duplikasi data ke dalam media lain agar dapat dipulihkan sewaktu-waktu saat sistem basis data mengalami kegagalan untuk beroperasi.
+
+=== Tujuan 
+
+Tujuan dibentuknya dokumen ini yaitu untuk memberikan gambaran jumlah basis data yang perlu dicadangkan, dan bagaimana langkah-langkah yang dilakukan untuk melakukan pencadangan data dan pemulihannya bila sewaktu-waktu dibutuhkan, yaitu ketika sistem basis data mengalami kegagalan operasi sehingga data tidak dapat diakses.
+
+=== Karakteristik
+
+1. Dilakukan oleh Pranata Komputer
++
+Rencana tindakan pencadangan dan pemulihan data dilakukan oleh Pranata Komputer yang memiliki dasar kompetensi yang memadai. Pihak lain yang memiliki akses terhadap sistem basis data berhak mendapatkan informasi rencana pencadangan dan pemulihat sistem basis data.
+
+2. Dilakukan setiap awal bulan
++
+Rencana tindakan pencadangan dan pemulihan data dilaksanakan setiap awal bulan agar dapat mengikuti perkembangan teknologi terkini dan mengurangi resiko gagal akses pada 
+
+3. Diletakkan dengan akses terbuka
++
+Rencana tindakan pencadangan dan pemulihan data ini harus tersedia secara terbuka untuk memudahkan pihak internal memahami kegiatan pencadangan telah dilakukan dan pemulihan data dapat dilakukan bila terjadi kondisi gagal aksesnya sistem basis data.
+
+4. Informasi yang baru
++
+Rencana tindakan pencadangan dan pemulihan harus selalu diperbaharui mengikuti perkembangan teknologi dan ketersediaan atau penambahan sumber data.
+
+== Lisensi
+
+image::by-sa.png[pdfwidth=25%]
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit
+http://creativecommons.org/licenses/by-sa/4.0/.
